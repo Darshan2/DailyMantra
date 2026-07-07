@@ -35,8 +35,11 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.security.crypto)
 
     testImplementation(libs.junit)
+    testImplementation(libs.kotlinx.coroutines.test)
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinJvmCompile>().configureEach {

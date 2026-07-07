@@ -1,13 +1,12 @@
 package com.get.dailymantra.common.core.data.network
 
-import com.get.dailymantra.common.core.coroutines.CoroutineDispatchers
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
 import retrofit2.Invocation
 import javax.inject.Inject
 
-class HeaderInterceptor @Inject constructor(
+class HeaderAuthInterceptor @Inject constructor(
     private val tokenProvider: TokenProvider,
 ) : Interceptor {
 

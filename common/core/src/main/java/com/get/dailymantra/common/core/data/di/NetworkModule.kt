@@ -1,6 +1,7 @@
 package com.get.dailymantra.common.core.data.di
 
-import com.get.dailymantra.common.core.data.network.HeaderInterceptor
+import com.get.dailymantra.common.core.data.network.HeaderAppMetaDataInterceptor
+import com.get.dailymantra.common.core.data.network.HeaderAuthInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -29,9 +30,13 @@ object NetworkModule {
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(headerInterceptor: HeaderInterceptor): OkHttpClient =
+    fun provideOkHttpClient(
+        headerAppMetaDataInterceptor: HeaderAppMetaDataInterceptor,
+        headerAuthInterceptor: HeaderAuthInterceptor,
+    ): OkHttpClient =
         OkHttpClient.Builder()
-            .addInterceptor(headerInterceptor)
+            .addInterceptor(headerAppMetaDataInterceptor)
+            .addInterceptor(headerAuthInterceptor)
             .addInterceptor(
                 HttpLoggingInterceptor().apply {
                     level = HttpLoggingInterceptor.Level.BODY
