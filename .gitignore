@@ -18,3 +18,7 @@ gradlew
 gradlew.bat
 /gradle/wrapper/
 gradle.properties
+secrets.properties
+/qa.properties
+/prod.properties
+**/build/

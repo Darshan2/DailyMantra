@@ -1,5 +1,6 @@
-package com.get.dailymantra.common.core.data.network
+package com.get.dailymantra.common.core.data.network.interceptors
 
+import com.get.dailymantra.common.core.data.network.TokenProvider
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -17,9 +18,9 @@ class HeaderAuthInterceptor @Inject constructor(
 
         if (skipAuth) return chain.proceed(chain.request())
 
-        val token = runBlocking { tokenProvider.getToken() }
+        val token = runBlocking { tokenProvider.getAccessToken() } ?: throw UnauthenticatedException()
         val request = chain.request().newBuilder()
-            .apply { token?.let { addHeader("Authorization", "Bearer $it") } }
+            .addHeader(ApiHeaders.Names.AUTHORIZATION, "${ApiHeaders.Values.BEARER_PREFIX}$token")
             .build()
         return chain.proceed(request)
     }

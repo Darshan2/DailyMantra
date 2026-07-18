@@ -1,4 +1,4 @@
-package com.get.dailymantra.common.core.data.network
+package com.get.dailymantra.common.core.data.network.interceptors
 
 /**
  * Marks a Retrofit API function as not requiring an Authorization header.

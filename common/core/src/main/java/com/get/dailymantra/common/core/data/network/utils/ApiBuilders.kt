@@ -1,5 +1,6 @@
-package com.get.dailymantra.common.core.data.network
+package com.get.dailymantra.common.core.data.network.utils
 
+import com.get.dailymantra.common.core.data.network.interceptors.UnauthenticatedException
 import com.get.dailymantra.common.core.domain.AppError
 import com.get.dailymantra.common.core.domain.Resource
 import kotlinx.coroutines.flow.Flow
@@ -11,6 +12,8 @@ import java.io.IOException
 private suspend fun <T> safeCall(call: suspend () -> T): ApiResponse<T> {
     return try {
         ApiResponse.Success(call())
+    } catch (e: UnauthenticatedException) {
+        ApiResponse.Error(401, e.message)
     } catch (e: HttpException) {
         ApiResponse.Error(e.code(), e.message())
     } catch (e: IOException) {
@@ -97,7 +100,7 @@ fun <T> safeApiCall(
 }
 
 /**
- * Transforms the data inside [Resource.Success], leaving all other states unchanged.
+ * Transforms the data inside [Success], leaving all other states unchanged.
  *
  * ### Usage
  *
@@ -113,7 +116,7 @@ inline fun <T, R> Resource<T>.mapData(transform: (T) -> R): Resource<R> = when (
 }
 
 /**
- * Transforms each item in a [Resource.Success] that wraps a [List], leaving all other states unchanged.
+ * Transforms each item in a [Success] that wraps a [List], leaving all other states unchanged.
  *
  * ### Usage
  *

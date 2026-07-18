@@ -3,15 +3,30 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.secrets.gradle.plugin)
 }
 
 android {
     namespace  = "com.get.dailymantra.common.core"
-    compileSdk = 36
+    compileSdk = 37
 
     defaultConfig {
         minSdk = 24
         consumerProguardFiles("consumer-rules.pro")
+    }
+
+    flavorDimensions += "environment"
+    productFlavors {
+        create("qa") {
+            dimension = "environment"
+        }
+        create("prod") {
+            dimension = "environment"
+        }
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 
     compileOptions {
@@ -21,9 +36,15 @@ android {
 
 }
 
+secrets {
+    propertiesFileName = "secrets.properties"
+    defaultPropertiesFileName = "local.defaults.properties"
+}
+
 dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
+    ksp(libs.kotlin.metadata.jvm)
 
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.kotlinx.serialization)

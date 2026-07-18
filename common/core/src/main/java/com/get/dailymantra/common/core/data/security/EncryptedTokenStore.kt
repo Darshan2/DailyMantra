@@ -7,7 +7,9 @@ import androidx.security.crypto.MasterKey
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import androidx.core.content.edit
+import javax.inject.Singleton
 
+@Singleton
 class EncryptedTokenStore @Inject constructor(
     @ApplicationContext context: Context,
 ) : TokenStore {
@@ -22,13 +24,22 @@ class EncryptedTokenStore @Inject constructor(
         EncryptedSharedPreferences.PrefValueEncryptionScheme.AES256_GCM,
     )
 
-    override fun getToken(): String? = prefs.getString(KEY_TOKEN, null)
+    override fun getAccessToken(): String? = prefs.getString(KEY_ACCESS_TOKEN, null)
 
-    override fun saveToken(token: String) = prefs.edit { putString(KEY_TOKEN, token) }
+    override fun getRefreshToken(): String? = prefs.getString(KEY_REFRESH_TOKEN, null)
 
-    override fun clearToken() = prefs.edit { remove(KEY_TOKEN) }
+    override fun saveTokens(accessToken: String, refreshToken: String) = prefs.edit {
+        putString(KEY_ACCESS_TOKEN, accessToken)
+        putString(KEY_REFRESH_TOKEN, refreshToken)
+    }
+
+    override fun clearTokens() = prefs.edit {
+        remove(KEY_ACCESS_TOKEN)
+        remove(KEY_REFRESH_TOKEN)
+    }
 
     private companion object {
-        const val KEY_TOKEN = "auth_token"
+        const val KEY_ACCESS_TOKEN = "auth_access_token"
+        const val KEY_REFRESH_TOKEN = "auth_refresh_token"
     }
 }

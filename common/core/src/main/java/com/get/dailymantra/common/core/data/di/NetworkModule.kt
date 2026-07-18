@@ -1,7 +1,13 @@
 package com.get.dailymantra.common.core.data.di
 
-import com.get.dailymantra.common.core.data.network.HeaderAppMetaDataInterceptor
-import com.get.dailymantra.common.core.data.network.HeaderAuthInterceptor
+import com.get.dailymantra.common.core.BuildConfig
+import com.get.dailymantra.common.core.data.network.AuthApi
+import com.get.dailymantra.common.core.data.network.interceptors.HeaderAppMetaDataInterceptor
+import com.get.dailymantra.common.core.data.network.interceptors.HeaderAuthInterceptor
+import com.get.dailymantra.common.core.data.network.interceptors.IdempotencyInterceptor
+import com.get.dailymantra.common.core.data.network.interceptors.RateLimitInterceptor
+import com.get.dailymantra.common.core.data.network.interceptors.RetryInterceptor
+import com.get.dailymantra.common.core.data.network.interceptors.TokenAuthenticator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -9,16 +15,20 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.kotlinx.serialization.asConverterFactory
+import javax.inject.Qualifier
 import javax.inject.Singleton
+
+/** Marks the dependency graph used only for the token-refresh call, kept isolated from [TokenAuthenticator]. */
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class RefreshClient
 
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
-
-    private const val BASE_URL = "https://api.dailymantra.com/"
 
     @Provides
     @Singleton
@@ -30,26 +40,68 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideJsonConverterFactory(json: Json): Converter.Factory =
+        json.asConverterFactory("application/json; charset=UTF8".toMediaType())
+
+
+    @Provides
+    @Singleton
     fun provideOkHttpClient(
         headerAppMetaDataInterceptor: HeaderAppMetaDataInterceptor,
         headerAuthInterceptor: HeaderAuthInterceptor,
+        idempotencyInterceptor: IdempotencyInterceptor,
+        retryInterceptor: RetryInterceptor,
+        rateLimitInterceptor: RateLimitInterceptor,
+        tokenAuthenticator: TokenAuthenticator,
+    ): OkHttpClient =
+        OkHttpClient.Builder()
+            .authenticator(tokenAuthenticator)
+            .addInterceptor(headerAppMetaDataInterceptor)
+            .addInterceptor(headerAuthInterceptor)
+            .addInterceptor(idempotencyInterceptor)
+            .addInterceptor(rateLimitInterceptor)
+            .addInterceptor(retryInterceptor)
+            .build()
+
+
+    @Provides
+    @Singleton
+    fun provideRetrofit(okHttpClient: OkHttpClient, converterFactory: Converter.Factory): Retrofit =
+        Retrofit.Builder()
+            .baseUrl(BuildConfig.BASE_URL)
+            .client(okHttpClient)
+            .addConverterFactory(converterFactory)
+            .build()
+
+    /**
+     * Deliberately excludes [TokenAuthenticator]: it depends on [AuthApi], so wiring the
+     * authenticator onto this client would form a cycle (and let a failed refresh call
+     * recursively trigger another refresh).
+     */
+    @Provides
+    @Singleton
+    @RefreshClient
+    fun provideRefreshOkHttpClient(
+        headerAppMetaDataInterceptor: HeaderAppMetaDataInterceptor,
     ): OkHttpClient =
         OkHttpClient.Builder()
             .addInterceptor(headerAppMetaDataInterceptor)
-            .addInterceptor(headerAuthInterceptor)
-            .addInterceptor(
-                HttpLoggingInterceptor().apply {
-                    level = HttpLoggingInterceptor.Level.BODY
-                }
-            )
             .build()
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient, json: Json): Retrofit =
+    @RefreshClient
+    fun provideRefreshRetrofit(
+        @RefreshClient okHttpClient: OkHttpClient,
+        converterFactory: Converter.Factory,
+    ): Retrofit =
         Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(BuildConfig.BASE_URL)
             .client(okHttpClient)
-            .addConverterFactory(json.asConverterFactory("application/json; charset=UTF8".toMediaType()))
+            .addConverterFactory(converterFactory)
             .build()
+
+    @Provides
+    @Singleton
+    fun provideAuthApi(@RefreshClient retrofit: Retrofit): AuthApi = retrofit.create(AuthApi::class.java)
 }

@@ -1,4 +1,4 @@
-package com.get.dailymantra.common.core.data.network
+package com.get.dailymantra.common.core.data.network.utils
 
 sealed class ApiResponse<out T> {
     data class Success<T>(val data: T) : ApiResponse<T>()
