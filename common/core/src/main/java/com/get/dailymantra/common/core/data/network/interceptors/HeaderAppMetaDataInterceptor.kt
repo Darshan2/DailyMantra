@@ -1,19 +1,18 @@
 package com.get.dailymantra.common.core.data.network.interceptors
 
-import android.content.Context
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.get.dailymantra.common.core.data.network.AppMetadataProvider
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
 
 class HeaderAppMetaDataInterceptor @Inject constructor(
-    @ApplicationContext private val context: Context,
+    private val appMetadataProvider: AppMetadataProvider,
 ) : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
         val request = chain.request().newBuilder()
-            .addHeader(ApiHeaders.Names.APP_LANGUAGE, context.resources.configuration.locales[0].toLanguageTag())
-            .addHeader(ApiHeaders.Names.APP_VERSION, context.packageManager.getPackageInfo(context.packageName, 0).versionName.orEmpty())
+            .addHeader(ApiHeaders.Names.APP_LANGUAGE, appMetadataProvider.languageTag())
+            .addHeader(ApiHeaders.Names.APP_VERSION, appMetadataProvider.versionName())
             .build()
         return chain.proceed(request)
     }

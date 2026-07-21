@@ -1,7 +1,10 @@
 package com.get.dailymantra.common.core.data.di
 
+import android.content.Context
 import com.get.dailymantra.common.core.BuildConfig
+import com.get.dailymantra.common.core.data.network.AppMetadataProvider
 import com.get.dailymantra.common.core.data.network.AuthApi
+import com.get.dailymantra.common.core.data.network.DefaultAppMetadataProvider
 import com.get.dailymantra.common.core.data.network.interceptors.HeaderAppMetaDataInterceptor
 import com.get.dailymantra.common.core.data.network.interceptors.HeaderAuthInterceptor
 import com.get.dailymantra.common.core.data.network.interceptors.IdempotencyInterceptor
@@ -11,6 +14,7 @@ import com.get.dailymantra.common.core.data.network.interceptors.TokenAuthentica
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
@@ -29,6 +33,12 @@ annotation class RefreshClient
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
+
+    @Provides
+    @Singleton
+    fun provideAppMetadataProvider(
+        @ApplicationContext context: Context,
+    ): AppMetadataProvider = DefaultAppMetadataProvider(context)
 
     @Provides
     @Singleton

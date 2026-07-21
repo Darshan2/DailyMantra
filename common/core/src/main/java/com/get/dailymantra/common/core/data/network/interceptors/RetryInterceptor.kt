@@ -3,6 +3,7 @@ package com.get.dailymantra.common.core.data.network.interceptors
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.io.IOException
+import javax.inject.Inject
 import kotlin.math.pow
 
 /**
@@ -18,7 +19,7 @@ import kotlin.math.pow
  * 429 (Too Many Requests) is deliberately excluded too: it's owned by [RateLimitInterceptor],
  * which honors the server's `Retry-After` header instead of blind exponential backoff.
  */
-class RetryInterceptor(
+class RetryInterceptor @Inject constructor(
     private val maxRetries: Int = 3,
     private val baseDelayMs: Long = 500
 ) : Interceptor {
