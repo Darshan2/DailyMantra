@@ -21,7 +21,8 @@ import kotlin.math.pow
  */
 class RetryInterceptor @Inject constructor(
     private val maxRetries: Int = 3,
-    private val baseDelayMs: Long = 500
+    private val baseDelayMs: Long = 500,
+    private val sleeper: (Long) -> Unit = Thread::sleep
 ) : Interceptor {
 
     private val retryableCodes = setOf(502, 503, 504)
@@ -45,7 +46,7 @@ class RetryInterceptor @Inject constructor(
             }
 
             val delay = (baseDelayMs * 2.0.pow(attempt)).toLong() // exponential
-            Thread.sleep(delay) // interceptors run off the main thread already (OkHttp dispatcher), so this is fine
+            sleeper(delay) // interceptors run off the main thread already (OkHttp dispatcher), so this is fine
             attempt++
         }
         throw lastException ?: IOException("Retry failed")

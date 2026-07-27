@@ -1,8 +1,4 @@
-package com.get.dailymantra.common.core.data.network.interceptors
-
-import com.get.dailymantra.common.core.data.network.AuthApi
-import com.get.dailymantra.common.core.data.network.RefreshTokenRequest
-import com.get.dailymantra.common.core.data.network.RefreshTokenResponse
+package com.get.dailymantra.common.core.data.network
 
 class FakeAuthApi(
     private val result: Result<RefreshTokenResponse> = Result.failure(IllegalStateException("FakeAuthApi: no result configured")),

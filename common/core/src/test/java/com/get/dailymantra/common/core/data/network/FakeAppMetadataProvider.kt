@@ -1,6 +1,4 @@
-package com.get.dailymantra.common.core.data.network.interceptors
-
-import com.get.dailymantra.common.core.data.network.AppMetadataProvider
+package com.get.dailymantra.common.core.data.network
 
 class FakeAppMetadataProvider(
     private val languageTag: String = "en-US",

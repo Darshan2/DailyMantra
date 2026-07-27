@@ -2,13 +2,16 @@ package com.get.dailymantra.common.core.data.network.interceptors
 
 import okhttp3.Interceptor
 import okhttp3.Response
+import javax.inject.Inject
 
 /**
  * Retries once on 429 (Too Many Requests), honoring the server's `Retry-After` header instead
  * of blind exponential backoff. Owns 429 exclusively — [RetryInterceptor] deliberately excludes
  * it so the two don't double-retry the same response.
  */
-class RateLimitInterceptor : Interceptor {
+class RateLimitInterceptor @Inject constructor(
+    private val sleeper: (Long) -> Unit = Thread::sleep
+) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val response = chain.proceed(chain.request())
 
@@ -17,7 +20,7 @@ class RateLimitInterceptor : Interceptor {
             val delayMs = (parseRetryAfter(retryAfter) ?: FALLBACK_DELAY_MS).coerceAtMost(MAX_DELAY_MS)
 
             response.close()
-            Thread.sleep(delayMs)
+            sleeper(delayMs)
             return chain.proceed(chain.request())
         }
         return response
@@ -29,7 +32,7 @@ class RateLimitInterceptor : Interceptor {
         return header.toLongOrNull()?.times(1000)
     }
 
-    private companion object {
+    companion object {
         const val FALLBACK_DELAY_MS = 1_000L
 
         // Retry-After is server-controlled input; clamp it so one 429 can't park an OkHttp

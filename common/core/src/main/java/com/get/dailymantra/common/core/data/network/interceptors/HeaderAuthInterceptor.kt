@@ -16,7 +16,9 @@ class HeaderAuthInterceptor @Inject constructor(
             ?.method()
             ?.isAnnotationPresent(NoAuthorization::class.java) == true
 
-        if (skipAuth) return chain.proceed(chain.request())
+        val hasAuthorizationHeader = chain.request().header(ApiHeaders.Names.AUTHORIZATION) != null
+
+        if (skipAuth || hasAuthorizationHeader) return chain.proceed(chain.request())
 
         val token = runBlocking { tokenProvider.getAccessToken() } ?: throw UnauthenticatedException()
         val request = chain.request().newBuilder()

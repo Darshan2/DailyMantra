@@ -1,6 +1,4 @@
-package com.get.dailymantra.common.core.data.network.interceptors
-
-import com.get.dailymantra.common.core.data.network.TokenProvider
+package com.get.dailymantra.common.core.data.network
 
 class FakeTokenProvider(
     private var accessToken: String? = null,
