@@ -17,7 +17,7 @@ sealed interface AppEvent {
 @Singleton
 class AppEventBus @Inject constructor() {
 
-    private val _events = MutableSharedFlow<AppEvent>(extraBufferCapacity = 1)
+    private val _events = MutableSharedFlow<AppEvent>(replay = 1)
     val events: SharedFlow<AppEvent> = _events
 
     suspend fun notifySessionExpired() = _events.emit(AppEvent.SessionExpired)

@@ -1,5 +1,6 @@
 package com.get.dailymantra.common.core.data.network.interceptors
 
+import jakarta.inject.Inject
 import okhttp3.Interceptor
 import okhttp3.Response
 import java.util.UUID
@@ -22,7 +23,7 @@ import java.util.UUID
  * If the request already carries the header (e.g. set explicitly by the caller), it is left
  * untouched.
  */
-class IdempotencyInterceptor : Interceptor {
+class IdempotencyInterceptor @Inject constructor(): Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
         val original = chain.request()
         if (original.method !in listOf("POST", "PATCH") ||

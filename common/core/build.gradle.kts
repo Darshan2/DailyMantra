@@ -34,6 +34,10 @@ android {
         targetCompatibility = JavaVersion.VERSION_11
     }
 
+    testOptions {
+        unitTests.isReturnDefaultValues = true
+    }
+
 }
 
 secrets {
