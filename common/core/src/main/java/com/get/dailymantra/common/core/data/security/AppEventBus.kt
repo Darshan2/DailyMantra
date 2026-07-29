@@ -10,14 +10,14 @@ sealed interface AppEvent {
     data object SessionExpired : AppEvent
 }
 
-/**
- * Bridges session-lifecycle events from the network layer (e.g. [okhttp3.Authenticator])
- * up to the UI layer, which has no direct visibility into OkHttp internals.
- */
+
 @Singleton
 class AppEventBus @Inject constructor() {
 
-    private val _events = MutableSharedFlow<AppEvent>(extraBufferCapacity = 1)
+    private val _events = MutableSharedFlow<AppEvent>(
+        replay = 0,
+        extraBufferCapacity = 1,
+    )
     val events: SharedFlow<AppEvent> = _events
 
     suspend fun notifySessionExpired() = _events.emit(AppEvent.SessionExpired)

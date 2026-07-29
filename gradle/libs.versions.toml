@@ -22,6 +22,7 @@ datastore            = "1.2.1"
 securityCrypto       = "1.1.0"
 secretsGradlePlugin  = "2.0.1"
 truth                = "1.4.5"
+turbine              = "1.2.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -56,13 +57,17 @@ kotlinx-coroutines-test                  = { group = "org.jetbrains.kotlinx",  n
 androidx-datastore-preferences           = { group = "androidx.datastore",     name = "datastore-preferences",           version.ref = "datastore"            }
 androidx-security-crypto                 = { group = "androidx.security",       name = "security-crypto",                 version.ref = "securityCrypto"       }
 truth                                    = { group = "com.google.truth",        name = "truth",                           version.ref = "truth"                }
+turbine                                  = { group = "app.cash.turbine",        name = "turbine",                         version.ref = "turbine"              }
 
 [plugins]
-android-application  = { id = "com.android.application",                       version.ref = "agp"    }
+android-application  = { id = "com.android.application",                         version.ref = "agp"    }
 kotlin-compose       = { id = "org.jetbrains.kotlin.plugin.compose",             version.ref = "kotlin" }
 android-library      = { id = "com.android.library",                             version.ref = "agp"    }
 hilt                 = { id = "com.google.dagger.hilt.android",                  version.ref = "hilt"   }
 ksp                  = { id = "com.google.devtools.ksp",                         version.ref = "ksp"    }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization",       version.ref = "kotlin" }
 secrets-gradle-plugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secretsGradlePlugin" }
+
+[bundles]
+unit-test = ["junit", "truth", "kotlinx-coroutines-test", "turbine"]
 
